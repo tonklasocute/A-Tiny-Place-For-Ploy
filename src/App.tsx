@@ -7,7 +7,7 @@ import Screen3Comfort from './components/Screen3Comfort'
 import Screen4Achievement from './components/Screen4Achievement'
 import Screen5Letter from './components/Screen5Letter'
 import Screen6Final from './components/Screen6Final'
-import ScreenFavoriteAnimal from './components/ScreenFavoriteAnimal'
+import ScreenLittleThings from './components/ScreenLittleThings'
 import ScreenSnapshots from './components/ScreenSnapshots'
 import CassetteMusicPlayer from './components/CassetteMusicPlayer'
 import SecretModal from './components/SecretModal'
@@ -17,7 +17,7 @@ import type { Secret } from './data/secrets'
 
 type Screen =
   | 'landing'
-  | 'favoriteAnimal'
+  | 'littleThings'
   | 'snapshots'
   | 'chat'
   | 'comfort'
@@ -25,7 +25,7 @@ type Screen =
   | 'letter'
   | 'final'
 
-const DOT_SCREENS: Screen[] = ['favoriteAnimal', 'snapshots', 'chat', 'comfort', 'achievement', 'letter']
+const DOT_SCREENS: Screen[] = ['littleThings', 'snapshots', 'chat', 'comfort', 'achievement', 'letter']
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('landing')
@@ -47,16 +47,16 @@ export default function App() {
         {screen === 'landing' && (
           <div key="landing" className="absolute inset-0">
             <Screen1Landing
-              onEnter={() => go('favoriteAnimal')}
+              onEnter={() => go('littleThings')}
               onPloyEasterEgg={handlePloyEasterEgg}
               onSecretFound={handleSecretFound}
             />
           </div>
         )}
 
-        {screen === 'favoriteAnimal' && (
-          <div key="favoriteAnimal" className="absolute inset-0">
-            <ScreenFavoriteAnimal
+        {screen === 'littleThings' && (
+          <div key="littleThings" className="absolute inset-0">
+            <ScreenLittleThings
               onContinue={() => go('snapshots')}
               onSecretFound={handleSecretFound}
             />
