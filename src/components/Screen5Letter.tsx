@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { letterMemories } from '../data/memories'
+import type { Secret } from '../data/secrets'
+import { secrets } from '../data/secrets'
 
 interface Props {
   onComplete: () => void
+  onSecretFound: (secret: Secret) => void
 }
 
 const LETTER_LINES = [
@@ -43,11 +47,38 @@ interface FloatingHeart {
   emoji: string
 }
 
-export default function Screen5Letter({ onComplete }: Props) {
+function MemoryCard({ memory, index }: { memory: typeof letterMemories[0]; index: number }) {
+  return (
+    <motion.div
+      className="rounded-2xl px-5 py-4 mt-4"
+      style={{
+        background: [
+          'rgba(255,214,228,0.4)',
+          'rgba(214,200,255,0.4)',
+          'rgba(200,230,255,0.4)',
+        ][index % 3],
+        border: `1.5px solid ${['rgba(245,147,176,0.3)', 'rgba(200,180,232,0.3)', 'rgba(181,216,247,0.3)'][index % 3]}`,
+      }}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.1 + index * 0.2, duration: 0.5 }}
+    >
+      <p className="text-xs font-body font-bold tracking-wide mb-1.5" style={{ color: '#c8b4e8' }}>
+        {memory.prompt}
+      </p>
+      <p className="font-display text-sm leading-relaxed" style={{ color: '#5a3d5c' }}>
+        {memory.text}
+      </p>
+    </motion.div>
+  )
+}
+
+export default function Screen5Letter({ onComplete, onSecretFound }: Props) {
   const [phase, setPhase] = useState<'envelope' | 'letter' | 'hug'>('envelope')
   const [showButton, setShowButton] = useState(false)
   const [hearts, setHearts] = useState<FloatingHeart[]>([])
   const [hugSent, setHugSent] = useState(false)
+  const [showMemories, setShowMemories] = useState(false)
 
   useEffect(() => {
     if (phase === 'envelope') {
@@ -55,16 +86,14 @@ export default function Screen5Letter({ onComplete }: Props) {
       return () => clearTimeout(t)
     }
     if (phase === 'letter') {
-      const t = setTimeout(() => setShowButton(true), 2000)
-      return () => clearTimeout(t)
+      const t1 = setTimeout(() => setShowMemories(true), 1200)
+      const t2 = setTimeout(() => setShowButton(true), 2200)
+      return () => { clearTimeout(t1); clearTimeout(t2) }
     }
   }, [phase])
 
   const handleHug = () => {
-    // Try haptic vibration
-    if (navigator.vibrate) {
-      navigator.vibrate([100, 50, 100, 50, 200])
-    }
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200])
 
     const newHearts: FloatingHeart[] = Array.from({ length: 20 }, (_, i) => ({
       id: Date.now() + i,
@@ -84,9 +113,7 @@ export default function Screen5Letter({ onComplete }: Props) {
   return (
     <motion.div
       className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden"
-      style={{
-        background: 'linear-gradient(160deg, #fff0f7 0%, #f5eeff 50%, #fffaf0 100%)',
-      }}
+      style={{ background: 'linear-gradient(160deg, #fff0f7 0%, #f5eeff 50%, #fffaf0 100%)' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -98,19 +125,9 @@ export default function Screen5Letter({ onComplete }: Props) {
           <motion.div
             key={h.id}
             className="absolute pointer-events-none z-50"
-            style={{
-              left: `${h.x}%`,
-              bottom: '30%',
-              fontSize: `${h.size}rem`,
-            }}
+            style={{ left: `${h.x}%`, bottom: '30%', fontSize: `${h.size}rem` }}
             initial={{ y: 0, opacity: 1, scale: 0.3 }}
-            animate={{
-              y: -(150 + Math.random() * 200),
-              x: Math.random() * 80 - 40,
-              opacity: 0,
-              scale: 1,
-              rotate: Math.random() * 40 - 20,
-            }}
+            animate={{ y: -(150 + Math.random() * 200), x: Math.random() * 80 - 40, opacity: 0, scale: 1, rotate: Math.random() * 40 - 20 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 2.2, ease: 'easeOut' }}
           >
@@ -135,29 +152,14 @@ export default function Screen5Letter({ onComplete }: Props) {
             >
               💌
             </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <p className="font-body text-base" style={{ color: '#9a7a9a' }}>Opening your letter...</p>
-            </motion.div>
-            {/* Animated envelope opening */}
-            <motion.div
-              className="flex gap-1 mt-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-            >
+            <p className="font-body text-base" style={{ color: '#9a7a9a' }}>Opening your letter...</p>
+            <div className="flex gap-1 mt-2">
               {[0, 1, 2].map(i => (
-                <motion.div
-                  key={i}
-                  className="w-2 h-2 rounded-full bg-ploy-pink"
+                <motion.div key={i} className="w-2 h-2 rounded-full bg-ploy-pink"
                   animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 0.8, delay: i * 0.2, repeat: Infinity }}
-                />
+                  transition={{ duration: 0.8, delay: i * 0.2, repeat: Infinity }} />
               ))}
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -171,7 +173,7 @@ export default function Screen5Letter({ onComplete }: Props) {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
           >
-            {/* Letter header */}
+            {/* Header */}
             <motion.div
               className="flex-shrink-0 pt-10 pb-3 px-6 text-center"
               initial={{ opacity: 0, y: -10 }}
@@ -180,7 +182,15 @@ export default function Screen5Letter({ onComplete }: Props) {
             >
               <div className="flex items-center justify-center gap-3 mb-2">
                 <div className="h-px flex-1 bg-gradient-to-r from-transparent to-ploy-lavender opacity-50" />
-                <span className="text-xl">💌</span>
+                {/* Hidden secret on the letter emoji */}
+                <motion.button
+                  onClick={() => onSecretFound(secrets.letter)}
+                  whileTap={{ scale: 0.9 }}
+                  animate={{ rotate: [0, 5, -5, 0] }}
+                  transition={{ duration: 6, repeat: Infinity }}
+                >
+                  <span className="text-xl">💌</span>
+                </motion.button>
                 <div className="h-px flex-1 bg-gradient-to-l from-transparent to-ploy-lavender opacity-50" />
               </div>
               <p className="text-xs font-body tracking-widest uppercase" style={{ color: '#c8b4e8' }}>
@@ -198,6 +208,7 @@ export default function Screen5Letter({ onComplete }: Props) {
                 boxShadow: '0 8px 32px rgba(200,150,200,0.15)',
               }}
             >
+              {/* Main letter lines */}
               {LETTER_LINES.map((line, i) => (
                 <motion.p
                   key={i}
@@ -215,12 +226,37 @@ export default function Screen5Letter({ onComplete }: Props) {
                 </motion.p>
               ))}
 
+              {/* Personalized memory cards */}
+              <AnimatePresence>
+                {showMemories && (
+                  <motion.div
+                    className="mt-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <motion.p
+                      className="text-xs font-body tracking-widest uppercase mt-4 mb-1"
+                      style={{ color: '#c8b4e8' }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.1 }}
+                    >
+                      ✦ just between us ✦
+                    </motion.p>
+                    {letterMemories.map((memory, i) => (
+                      <MemoryCard key={memory.id} memory={memory} index={i} />
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Floating hearts at bottom of letter */}
               <motion.div
-                className="flex justify-center gap-2 mt-4"
+                className="flex justify-center gap-2 mt-5"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 2 }}
+                transition={{ delay: 2.2 }}
               >
                 {['💕', '🌷', '💕'].map((e, i) => (
                   <motion.span
@@ -235,7 +271,7 @@ export default function Screen5Letter({ onComplete }: Props) {
               </motion.div>
             </div>
 
-            {/* Receive hug button */}
+            {/* Hug button */}
             <AnimatePresence>
               {showButton && !hugSent && (
                 <motion.div
@@ -252,11 +288,7 @@ export default function Screen5Letter({ onComplete }: Props) {
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.97 }}
                     animate={{
-                      boxShadow: [
-                        '0 4px 20px rgba(245,147,176,0.3)',
-                        '0 4px 35px rgba(245,147,176,0.6)',
-                        '0 4px 20px rgba(245,147,176,0.3)',
-                      ],
+                      boxShadow: ['0 4px 20px rgba(245,147,176,0.3)', '0 4px 35px rgba(245,147,176,0.6)', '0 4px 20px rgba(245,147,176,0.3)'],
                     }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
@@ -272,7 +304,7 @@ export default function Screen5Letter({ onComplete }: Props) {
               )}
             </AnimatePresence>
 
-            {/* Sending hug message */}
+            {/* Sending hug */}
             <AnimatePresence>
               {hugSent && (
                 <motion.div

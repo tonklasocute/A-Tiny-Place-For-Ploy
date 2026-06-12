@@ -2,9 +2,13 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import MochiCharacter from './MochiCharacter'
 import { mochiDialogues, encouragingMessages } from '../utils/messages'
+import { mochiLevels, getMochiLevel } from '../data/messages'
+import type { Secret } from '../data/secrets'
+import { secrets } from '../data/secrets'
 
 interface Props {
   onUnlock: () => void
+  onSecretFound: (secret: Secret) => void
 }
 
 const ACTIONS = [
@@ -43,37 +47,50 @@ function FairyLights() {
           style={{
             background: ['#FFB5C8', '#C8B4E8', '#FFD5B5', '#B5D8F7', '#FFE066'][i % 5],
           }}
-          animate={{
-            opacity: [0.4, 1, 0.4],
-            scale: [0.8, 1.2, 0.8],
-          }}
-          transition={{
-            duration: 1.5 + Math.random(),
-            delay: i * 0.12,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
+          animate={{ opacity: [0.4, 1, 0.4], scale: [0.8, 1.2, 0.8] }}
+          transition={{ duration: 1.5 + Math.random(), delay: i * 0.12, repeat: Infinity, ease: 'easeInOut' }}
         />
       ))}
     </div>
   )
 }
 
-export default function Screen3Comfort({ onUnlock }: Props) {
+export default function Screen3Comfort({ onUnlock, onSecretFound }: Props) {
   const [points, setPoints] = useState(0)
-  const [message, setMessage] = useState("Hello Ploy. I was created to take care of you. 🌷")
+  const [message, setMessage] = useState('')
   const [expression, setExpression] = useState<'happy' | 'excited' | 'cozy' | 'love'>('happy')
-  const [showMessage, setShowMessage] = useState(true)
+  const [showMessage, setShowMessage] = useState(false)
   const [activeAction, setActiveAction] = useState<string | null>(null)
   const [unlocked, setUnlocked] = useState(false)
   const [particles, setParticles] = useState<Array<{ id: number; x: number; emoji: string }>>([])
+  const [prevLevel, setPrevLevel] = useState(1)
+  const [showLevelUp, setShowLevelUp] = useState(false)
 
+  const mochiLevel = getMochiLevel(points)
   const progress = Math.min(points / UNLOCK_THRESHOLD, 1)
+  const levelInfo = mochiLevels[mochiLevel - 1]
+
+  // Greet on mount
+  useEffect(() => {
+    setMessage(levelInfo.dialogue[0])
+    setShowMessage(true)
+  }, [])
+
+  // Level-up detection
+  useEffect(() => {
+    if (mochiLevel > prevLevel) {
+      setPrevLevel(mochiLevel)
+      setShowLevelUp(true)
+      const newDialogue = mochiLevels[mochiLevel - 1].dialogue
+      setMessage(newDialogue[Math.floor(Math.random() * newDialogue.length)])
+      setTimeout(() => setShowLevelUp(false), 2000)
+    }
+  }, [mochiLevel, prevLevel])
 
   useEffect(() => {
     if (points >= UNLOCK_THRESHOLD && !unlocked) {
       setUnlocked(true)
-      setTimeout(() => onUnlock(), 1500)
+      setTimeout(() => onUnlock(), 1800)
     }
   }, [points, unlocked, onUnlock])
 
@@ -83,13 +100,9 @@ export default function Screen3Comfort({ onUnlock }: Props) {
     const randomMsg = dialogueList[Math.floor(Math.random() * dialogueList.length)]
 
     setActiveAction(key)
-    setMessage(randomMsg)
-    setShowMessage(false)
-
     const newExpression = key === 'hug' ? 'love' : key === 'encourage' ? 'excited' : key === 'walk' ? 'cozy' : 'happy'
     setExpression(newExpression)
 
-    // Spawn emoji particles
     const emoji = key === 'bubbleTea' ? '🧋' : key === 'hug' ? '💕' : key === 'walk' ? '🌸' : '✨'
     const newParticles = Array.from({ length: 5 }, (_, i) => ({
       id: Date.now() + i,
@@ -99,13 +112,15 @@ export default function Screen3Comfort({ onUnlock }: Props) {
     setParticles(prev => [...prev, ...newParticles])
     setTimeout(() => setParticles(prev => prev.filter(p => !newParticles.find(np => np.id === p.id))), 2000)
 
-    setTimeout(() => {
-      setShowMessage(true)
-      setActiveAction(null)
-      setExpression('happy')
-    }, 100)
+    setMessage(randomMsg)
+    setShowMessage(false)
+    setTimeout(() => { setShowMessage(true); setActiveAction(null); setExpression('happy') }, 100)
 
     setPoints(prev => Math.min(prev + pts, UNLOCK_THRESHOLD))
+  }
+
+  const handleMochiTap = () => {
+    onSecretFound(secrets.mochi)
   }
 
   return (
@@ -127,25 +142,54 @@ export default function Screen3Comfort({ onUnlock }: Props) {
         </div>
       </div>
 
-      {/* Room title */}
-      <motion.p
-        className="text-center font-display text-2xl flex-shrink-0 pb-1"
-        style={{ color: '#7a5c7a' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-      >
-        The Comfort Room
-      </motion.p>
+      {/* Room title + Mochi level badge */}
+      <div className="flex items-center justify-center gap-3 pb-1">
+        <motion.p
+          className="font-display text-2xl"
+          style={{ color: '#7a5c7a' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          The Comfort Room
+        </motion.p>
+        <motion.div
+          className="px-2 py-0.5 rounded-full text-xs font-body font-bold"
+          style={{ background: 'rgba(200,180,232,0.3)', border: '1px solid rgba(200,180,232,0.5)', color: '#7a5c9a' }}
+          key={mochiLevel}
+          initial={{ scale: 0.8 }}
+          animate={{ scale: 1 }}
+        >
+          {levelInfo.emoji} {levelInfo.name}
+        </motion.div>
+      </div>
 
-      {/* Plants decoration */}
+      {/* Level-up flash */}
+      <AnimatePresence>
+        {showLevelUp && (
+          <motion.div
+            className="absolute top-1/4 left-0 right-0 text-center z-20 pointer-events-none"
+            initial={{ opacity: 0, scale: 0.8, y: 0 }}
+            animate={{ opacity: 1, scale: 1.1, y: -10 }}
+            exit={{ opacity: 0, scale: 0.9, y: -30 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="inline-block px-5 py-2 rounded-full font-body font-bold text-sm"
+              style={{ background: 'linear-gradient(135deg, #f593b0, #c8b4e8)', color: 'white', boxShadow: '0 8px 30px rgba(245,147,176,0.5)' }}>
+              ✨ Mochi leveled up! {levelInfo.emoji}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Plants */}
       <div className="flex justify-between px-6 flex-shrink-0 pb-2">
         <Plant delay={0} />
         <Plant delay={0.3} />
         <Plant delay={0.6} />
       </div>
 
-      {/* Mochi character + speech bubble */}
+      {/* Mochi + speech bubble */}
       <div className="flex flex-col items-center flex-shrink-0 relative">
         {/* Particles */}
         {particles.map(p => (
@@ -161,7 +205,13 @@ export default function Screen3Comfort({ onUnlock }: Props) {
           </motion.div>
         ))}
 
-        <MochiCharacter expression={expression} />
+        <motion.div
+          onClick={handleMochiTap}
+          className="cursor-pointer"
+          whileTap={{ scale: 0.95 }}
+        >
+          <MochiCharacter expression={expression} level={mochiLevel as 1 | 2 | 3 | 4} />
+        </motion.div>
 
         {/* Speech bubble */}
         <AnimatePresence mode="wait">
@@ -174,10 +224,12 @@ export default function Screen3Comfort({ onUnlock }: Props) {
               exit={{ opacity: 0, y: -8, scale: 0.95 }}
               transition={{ duration: 0.35 }}
             >
-              {/* Bubble pointer */}
               <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-2 overflow-hidden">
                 <div className="w-3 h-3 rotate-45 glass-pink mx-auto -mt-1.5" />
               </div>
+              <p className="text-xs font-body font-bold mb-0.5" style={{ color: '#c8b4e8' }}>
+                Mochi · {levelInfo.name}
+              </p>
               <p className="text-sm font-body leading-snug" style={{ color: '#5a3d5c' }}>
                 {message}
               </p>
@@ -216,9 +268,7 @@ export default function Screen3Comfort({ onUnlock }: Props) {
             onClick={() => handleAction(action.key, action.points)}
             className="py-3 px-2 rounded-2xl font-body font-semibold text-sm text-center relative overflow-hidden"
             style={{
-              background: activeAction === action.key
-                ? 'rgba(245,147,176,0.35)'
-                : 'rgba(255,255,255,0.55)',
+              background: activeAction === action.key ? 'rgba(245,147,176,0.35)' : 'rgba(255,255,255,0.55)',
               backdropFilter: 'blur(8px)',
               border: '1.5px solid rgba(200,180,232,0.4)',
               color: '#5a3d5c',
@@ -232,6 +282,22 @@ export default function Screen3Comfort({ onUnlock }: Props) {
           </motion.button>
         ))}
       </div>
+
+      {/* Hidden bubble tea secret */}
+      <motion.div
+        className="absolute bottom-6 right-5"
+        animate={{ opacity: [0.2, 0.6, 0.2] }}
+        transition={{ duration: 4, repeat: Infinity }}
+      >
+        <motion.button
+          onClick={() => onSecretFound(secrets.bubbleTea)}
+          className="text-xl"
+          whileTap={{ scale: 0.9 }}
+          title="🧋"
+        >
+          🫧
+        </motion.button>
+      </motion.div>
 
       {/* Unlock glow */}
       <AnimatePresence>
@@ -252,7 +318,6 @@ export default function Screen3Comfort({ onUnlock }: Props) {
         )}
       </AnimatePresence>
 
-      {/* Bottom padding */}
       <div className="flex-shrink-0 h-4" />
     </motion.div>
   )
