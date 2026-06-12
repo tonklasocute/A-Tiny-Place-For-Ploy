@@ -7,7 +7,7 @@ import Screen3Comfort from './components/Screen3Comfort'
 import Screen4Achievement from './components/Screen4Achievement'
 import Screen5Letter from './components/Screen5Letter'
 import Screen6Final from './components/Screen6Final'
-import ScreenLittleThings from './components/ScreenLittleThings'
+import ScreenFavoriteAnimal from './components/ScreenFavoriteAnimal'
 import ScreenSnapshots from './components/ScreenSnapshots'
 import CassetteMusicPlayer from './components/CassetteMusicPlayer'
 import SecretModal from './components/SecretModal'
@@ -17,7 +17,7 @@ import type { Secret } from './data/secrets'
 
 type Screen =
   | 'landing'
-  | 'littleThings'
+  | 'favoriteAnimal'
   | 'snapshots'
   | 'chat'
   | 'comfort'
@@ -25,18 +25,7 @@ type Screen =
   | 'letter'
   | 'final'
 
-const SCREEN_ORDER: Screen[] = [
-  'landing',
-  'littleThings',
-  'snapshots',
-  'chat',
-  'comfort',
-  'achievement',
-  'letter',
-  'final',
-]
-
-const DOT_SCREENS: Screen[] = ['littleThings', 'snapshots', 'chat', 'comfort', 'achievement', 'letter']
+const DOT_SCREENS: Screen[] = ['favoriteAnimal', 'snapshots', 'chat', 'comfort', 'achievement', 'letter']
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('landing')
@@ -45,42 +34,29 @@ export default function App() {
 
   const go = useCallback((s: Screen) => setScreen(s), [])
 
-  const handleSecretFound = useCallback((secret: Secret) => {
-    setActiveSecret(secret)
-  }, [])
-
-  const handlePloyEasterEgg = useCallback(() => {
-    setEasterEggOpen(true)
-  }, [])
-
-  const currentDotIndex = SCREEN_ORDER.indexOf(screen)
+  const handleSecretFound = useCallback((secret: Secret) => setActiveSecret(secret), [])
+  const handlePloyEasterEgg = useCallback(() => setEasterEggOpen(true), [])
 
   return (
     <div className="relative w-full overflow-hidden" style={{ height: '100dvh' }}>
-      {/* Global cassette music player — always visible */}
       <CassetteMusicPlayer />
-
-      {/* Global secret object modal */}
       <SecretModal secret={activeSecret} onClose={() => setActiveSecret(null)} />
-
-      {/* Global easter egg overlay */}
       <EasterEggOverlay open={easterEggOpen} onClose={() => setEasterEggOpen(false)} />
 
-      {/* Screens */}
       <AnimatePresence mode="wait">
         {screen === 'landing' && (
           <div key="landing" className="absolute inset-0">
             <Screen1Landing
-              onEnter={() => go('littleThings')}
+              onEnter={() => go('favoriteAnimal')}
               onPloyEasterEgg={handlePloyEasterEgg}
               onSecretFound={handleSecretFound}
             />
           </div>
         )}
 
-        {screen === 'littleThings' && (
-          <div key="littleThings" className="absolute inset-0">
-            <ScreenLittleThings
+        {screen === 'favoriteAnimal' && (
+          <div key="favoriteAnimal" className="absolute inset-0">
+            <ScreenFavoriteAnimal
               onContinue={() => go('snapshots')}
               onSecretFound={handleSecretFound}
             />
@@ -133,7 +109,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Progress dots — visible on all middle screens */}
       {DOT_SCREENS.includes(screen) && (
         <div className="fixed bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-40 pointer-events-none">
           {DOT_SCREENS.map(s => (
@@ -143,17 +118,12 @@ export default function App() {
               style={{
                 width: screen === s ? 16 : 6,
                 height: 6,
-                background: screen === s
-                  ? 'rgba(245,147,176,0.9)'
-                  : 'rgba(200,180,232,0.4)',
+                background: screen === s ? 'rgba(245,147,176,0.9)' : 'rgba(200,180,232,0.4)',
               }}
             />
           ))}
         </div>
       )}
-
-      {/* Invisible dot index for TypeScript — keeps currentDotIndex used */}
-      {currentDotIndex < 0 && null}
     </div>
   )
 }

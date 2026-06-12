@@ -11,10 +11,17 @@ export interface Song {
 // 2. Add an entry below with the exact filename
 // 3. Run `npm run build` — done!
 // ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────
+// To activate: drop the mp3 file into /public/music/
+// then rename it to exactly: love-wave-to-earth.mp3
+// ─────────────────────────────────────────────────────────
 export const playlist: Song[] = [
-  // Example (uncomment and edit):
-  // { id: 's1', title: 'Soft Evening', artist: 'lo-fi mix', filename: 'soft-evening.mp3' },
-  // { id: 's2', title: 'Ploy\'s Theme', filename: 'ploy-theme.mp3' },
+  {
+    id: 'love',
+    title: 'Love',
+    artist: 'wave to earth',
+    filename: 'love-wave-to-earth.mp3',
+  },
 ]
 
 export const playerLabel = 'Ploy\'s Playlist 🎵'

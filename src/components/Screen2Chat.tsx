@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
+const base = import.meta.env.BASE_URL
+
 interface Props {
   onContinue: () => void
 }
@@ -27,9 +29,8 @@ function TypingIndicator() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -5 }}
     >
-      <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0"
-        style={{ background: 'linear-gradient(135deg, #f593b0, #c8b4e8)' }}>
-        🌷
+      <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border-2 border-ploy-pink-light">
+        <img src={`${base}ploy3.jpg`} alt="Ploy" className="w-full h-full object-cover" draggable={false} />
       </div>
       <div className="glass-pink rounded-2xl rounded-bl-sm px-4 py-3">
         <div className="flex gap-1 items-center h-4">
@@ -56,9 +57,8 @@ function ChatBubble({ text, index }: { text: string; index: number }) {
       transition={{ duration: 0.4, ease: 'easeOut' }}
     >
       {index === 0 && (
-        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0"
-          style={{ background: 'linear-gradient(135deg, #f593b0, #c8b4e8)' }}>
-          🌷
+        <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border-2 border-ploy-pink-light">
+          <img src={`${base}ploy3.jpg`} alt="Ploy" className="w-full h-full object-cover" draggable={false} />
         </div>
       )}
       {index > 0 && <div className="w-8 flex-shrink-0" />}
@@ -86,6 +86,14 @@ export default function Screen2Chat({ onContinue }: Props) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
+    // Extra long pause before dramatic messages (0-indexed)
+    const dramaticPause: Record<number, number> = {
+      5: 3200,   // "But I want you to know something."
+      6: 3600,   // "Everything did not fall apart."
+      8: 4000,   // "Actually..."
+      9: 3400,   // "You'll become stronger than you think."
+    }
+
     const showNext = (idx: number) => {
       if (idx >= MESSAGES.length) {
         setShowTyping(false)
@@ -93,17 +101,18 @@ export default function Screen2Chat({ onContinue }: Props) {
         return
       }
       setShowTyping(true)
-      const typingDelay = 900 + Math.random() * 600
+      const base = 1800 + Math.random() * 900   // 1.8 – 2.7 s
+      const typingDelay = dramaticPause[idx] ?? base
       timerRef.current = setTimeout(() => {
         setShowTyping(false)
         setTimeout(() => {
           setVisibleCount(idx + 1)
-          timerRef.current = setTimeout(() => showNext(idx + 1), 400)
-        }, 150)
+          timerRef.current = setTimeout(() => showNext(idx + 1), 800)
+        }, 220)
       }, typingDelay)
     }
 
-    timerRef.current = setTimeout(() => showNext(0), 600)
+    timerRef.current = setTimeout(() => showNext(0), 1000)
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
   }, [])
 
@@ -130,11 +139,8 @@ export default function Screen2Chat({ onContinue }: Props) {
         transition={{ delay: 0.2 }}
       >
         <div className="flex items-center gap-3 px-4 py-3 rounded-2xl glass shadow-sm">
-          <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg, #f593b0, #c8b4e8)' }}
-          >
-            🌷
+          <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-ploy-pink-light shadow-sm">
+            <img src={`${base}ploy3.jpg`} alt="Ploy" className="w-full h-full object-cover" draggable={false} />
           </div>
           <div>
             <p className="font-body font-bold text-sm" style={{ color: '#5a3d5c' }}>Ploy from the Future</p>
