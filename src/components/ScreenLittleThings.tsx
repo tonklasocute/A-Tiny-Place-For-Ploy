@@ -9,242 +9,236 @@ interface Props {
   onSecretFound: (secret: Secret) => void
 }
 
-interface Sparkle {
-  id: number
-  pct: number
-  emoji: string
-  tx: number
-  ty: number
-}
+// ─── Bottom sheet ─────────────────────────────────────────────────────────────
 
-// ─── Card ────────────────────────────────────────────────────────────────────
-
-function MemoryCard({ card, index }: { card: LittleThing; index: number }) {
+function CardSheet({ card, onClose }: { card: LittleThing; onClose: () => void }) {
   const base = import.meta.env.BASE_URL
-  const [isOpen, setIsOpen] = useState(false)
-  const [sparkles, setSparkles] = useState<Sparkle[]>([])
-
-  const handleTap = () => {
-    if (!isOpen) {
-      const burst: Sparkle[] = Array.from({ length: 9 }, (_, i) => ({
-        id: Date.now() + i,
-        pct: 10 + Math.random() * 80,
-        emoji: card.sparkleEmojis[i % card.sparkleEmojis.length],
-        tx: (Math.random() - 0.5) * 80,
-        ty: -(36 + Math.random() * 60),
-      }))
-      setSparkles(burst)
-      setTimeout(() => setSparkles([]), 1500)
-    }
-    setIsOpen(o => !o)
-  }
-
-  const glow = `rgba(${card.glowRgb},0.55)`
-  const glowSoft = `rgba(${card.glowRgb},0.22)`
 
   return (
-    // Outer wrapper: no overflow-hidden so sparkles escape upward
-    <motion.div layout className="relative" style={{ borderRadius: '24px' }}>
-      {/* Sparkles — outside the visual card so they escape freely */}
-      <AnimatePresence>
-        {sparkles.map(s => (
-          <motion.span
-            key={s.id}
-            className="absolute z-30 pointer-events-none text-lg select-none"
-            style={{ left: `${s.pct}%`, top: '45%' }}
-            initial={{ opacity: 1, x: 0, y: 0, scale: 0.4 }}
-            animate={{ opacity: 0, x: s.tx, y: s.ty, scale: 1.3 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.95, ease: 'easeOut' }}
-          >
-            {s.emoji}
-          </motion.span>
-        ))}
-      </AnimatePresence>
-
-      {/* Visual card (overflow-hidden for rounded photo corners) */}
+    // Backdrop
+    <motion.div
+      className="fixed inset-0 z-50 flex items-end justify-center"
+      style={{
+        background: 'rgba(8,4,20,0.60)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        paddingBottom: 'max(env(safe-area-inset-bottom), 20px)',
+        paddingLeft: '16px',
+        paddingRight: '16px',
+      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22 }}
+      onClick={onClose}
+    >
+      {/* Sheet */}
       <motion.div
-        layout
-        className="rounded-3xl overflow-hidden cursor-pointer select-none"
-        animate={{
-          boxShadow: isOpen
-            ? `0 0 0 2.5px ${glow}, 0 18px 52px ${glowSoft}`
-            : '0 4px 20px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.06)',
+        className="w-full rounded-3xl overflow-hidden"
+        style={{
+          background: card.gradient,
+          maxWidth: '440px',
+          boxShadow: `0 -8px 60px rgba(${card.glowRgb},0.45), 0 24px 60px rgba(0,0,0,0.35)`,
         }}
-        onClick={handleTap}
-        whileTap={{ scale: 0.985 }}
-        transition={{ layout: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] } }}
+        initial={{ y: '110%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '110%' }}
+        transition={{ type: 'spring', stiffness: 340, damping: 32, mass: 0.75 }}
+        onClick={e => e.stopPropagation()}
       >
-        {/* ── TOP: Photo OR gradient header ─────────────────────────────── */}
-        {card.imageFilename ? (
-          <div className="relative" style={{ height: '180px' }}>
-            <img
-              src={`${base}${card.imageFilename}`}
-              alt={card.title}
-              draggable={false}
-              className="w-full h-full object-cover pointer-events-none"
-              style={{ objectPosition: card.objectPosition ?? 'center center' }}
-            />
-            {/* Gradient blend: photo → card body color */}
-            <div
-              className="absolute inset-x-0 bottom-0 pointer-events-none"
-              style={{
-                height: '100px',
-                background: `linear-gradient(to bottom, transparent 0%, ${card.fadeColor} 100%)`,
-              }}
-            />
-            {/* Live badge while open */}
-            <AnimatePresence>
-              {isOpen && (
-                <motion.div
-                  className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-body font-bold text-white"
-                  style={{ background: `rgba(${card.glowRgb},0.7)`, backdropFilter: 'blur(6px)' }}
-                  initial={{ opacity: 0, scale: 0.7 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.7 }}
-                >
-                  ✨ secret
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        ) : (
-          /* Gradient header with large emoji for non-image cards */
+        {/* Drag handle */}
+        <div className="flex justify-center pt-3 pb-2">
           <div
-            className="relative flex items-center justify-center"
+            className="w-9 h-1 rounded-full"
+            style={{ background: `rgba(${card.glowRgb},0.4)` }}
+          />
+        </div>
+
+        {/* Photo */}
+        {card.imageFilename && (
+          <motion.div
+            className="mx-4 rounded-2xl overflow-hidden"
             style={{
-              height: '108px',
-              background: card.gradient,
+              boxShadow: `0 8px 32px rgba(${card.glowRgb},0.40), 0 2px 8px rgba(0,0,0,0.18)`,
             }}
+            initial={{ scale: 0.88, opacity: 0, y: 12 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            transition={{ delay: 0.08, type: 'spring', stiffness: 280, damping: 24 }}
           >
-            {/* Soft radial glow */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: `radial-gradient(ellipse at center, rgba(${card.glowRgb},0.30) 0%, transparent 70%)`,
-              }}
-            />
-            <motion.span
-              className="text-5xl relative z-10 select-none"
-              animate={isOpen
-                ? { scale: [1, 1.25, 1.1], rotate: [0, 10, 0] }
-                : { scale: [1, 1.07, 1], rotate: [0, 4, -4, 0] }
-              }
-              transition={isOpen
-                ? { duration: 0.5 }
-                : { duration: 5 + index * 0.5, repeat: Infinity, delay: index * 0.3 }
-              }
-            >
-              {card.emoji}
-            </motion.span>
-          </div>
+            {/* Fixed-height container — required for object-fit + object-position to crop correctly */}
+            <div style={{ height: '260px', overflow: 'hidden' }}>
+              <img
+                src={`${base}${card.imageFilename}`}
+                alt={card.title}
+                draggable={false}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  objectPosition: card.objectPosition ?? 'center center',
+                }}
+              />
+            </div>
+          </motion.div>
         )}
 
-        {/* ── BODY ──────────────────────────────────────────────────────── */}
-        <div
-          className="px-5 py-4"
-          style={{ background: card.gradient }}
-        >
-          {/* Title row */}
-          <div className="flex items-center gap-3">
-            {card.imageFilename && (
-              <motion.div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 select-none"
-                style={{ background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(4px)' }}
-                animate={isOpen ? { scale: [1, 1.18, 1] } : {}}
-                transition={{ duration: 0.45 }}
-              >
-                {card.emoji}
-              </motion.div>
-            )}
-            <div className="flex-1 min-w-0">
+        {/* Content */}
+        <div className="px-5 pt-4 pb-5">
+          {/* Title */}
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-3xl select-none">{card.emoji}</span>
+            <div className="flex-1">
               <p
-                className="font-body font-bold text-[15px] leading-tight"
+                className="font-body font-bold text-base leading-tight"
                 style={{ color: card.textColor }}
               >
                 {card.title}
               </p>
               <p
-                className="font-body text-[11px] mt-0.5"
+                className="font-body text-xs mt-0.5"
                 style={{ color: card.textColor, opacity: 0.55 }}
               >
                 {card.subtitle}
               </p>
             </div>
-            <motion.span
-              className="text-xs flex-shrink-0 select-none"
-              style={{ color: card.textColor, opacity: 0.45 }}
-              animate={{ rotate: isOpen ? 180 : 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              ▼
-            </motion.span>
           </div>
 
-          {/* Description */}
-          <p
-            className="mt-3 font-body text-[13px] leading-relaxed"
-            style={{ color: card.textColor, opacity: 0.82 }}
+          {/* Secret note */}
+          <motion.div
+            className="rounded-2xl px-4 py-4 mb-4"
+            style={{ background: card.noteAlpha }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.18, duration: 0.32 }}
           >
-            {card.description}
-          </p>
+            <p
+              className="text-[10px] font-body font-bold tracking-widest uppercase mb-1.5"
+              style={{ color: card.textColor, opacity: 0.5 }}
+            >
+              secret ✨
+            </p>
+            <p
+              className="font-display text-[18px] italic leading-snug"
+              style={{ color: card.hiddenColor }}
+            >
+              "{card.hiddenMessage}"
+            </p>
+          </motion.div>
 
-          {/* Tap hint (closed) */}
-          <AnimatePresence>
-            {!isOpen && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="mt-3 text-center text-[10px] font-body select-none"
-                style={{ color: card.textColor, opacity: 0.38 }}
-              >
-                tap to peek ✨
-              </motion.p>
-            )}
-          </AnimatePresence>
-
-          {/* Hidden note (open) */}
-          <AnimatePresence>
-            {isOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.38, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className="overflow-hidden"
-              >
-                <div
-                  className="mt-4 mb-3"
-                  style={{ borderTop: `1.5px dashed rgba(${card.glowRgb},0.40)` }}
-                />
-                <motion.div
-                  className="rounded-2xl px-4 py-3"
-                  style={{ background: card.noteAlpha }}
-                  initial={{ scale: 0.95, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.1, duration: 0.3 }}
-                >
-                  <p
-                    className="font-display text-[16px] italic leading-snug"
-                    style={{ color: card.hiddenColor }}
-                  >
-                    "{card.hiddenMessage}"
-                  </p>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Close */}
+          <motion.button
+            type="button"
+            onClick={onClose}
+            className="w-full py-3.5 rounded-2xl font-body font-semibold text-sm"
+            style={{
+              background: `rgba(${card.glowRgb},0.18)`,
+              color: card.textColor,
+              border: `1.5px solid rgba(${card.glowRgb},0.30)`,
+            }}
+            whileTap={{ scale: 0.97 }}
+          >
+            close ✕
+          </motion.button>
         </div>
       </motion.div>
     </motion.div>
   )
 }
 
-// ─── Screen ──────────────────────────────────────────────────────────────────
+// ─── Compact card ─────────────────────────────────────────────────────────────
+
+function MemoryCard({
+  card,
+  index,
+  onOpen,
+}: {
+  card: LittleThing
+  index: number
+  onOpen: () => void
+}) {
+  return (
+    <motion.div
+      className="rounded-2xl overflow-hidden cursor-pointer select-none"
+      style={{ background: card.gradient }}
+      initial={{ opacity: 0, y: 28 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1 * index + 0.24, duration: 0.4, ease: 'easeOut' }}
+      onClick={onOpen}
+      whileTap={{ scale: 0.975 }}
+    >
+      <div className="flex items-center gap-4 px-4 py-4">
+        {/* Emoji */}
+        <motion.div
+          className="w-14 h-14 rounded-2xl flex items-center justify-center text-[28px] flex-shrink-0 select-none"
+          style={{ background: 'rgba(255,255,255,0.48)' }}
+          animate={{ scale: [1, 1.06, 1], rotate: [0, 4, -4, 0] }}
+          transition={{ duration: 5 + index * 0.5, repeat: Infinity, delay: index * 0.4 }}
+        >
+          {card.emoji}
+        </motion.div>
+
+        {/* Text */}
+        <div className="flex-1 min-w-0">
+          <p
+            className="font-body font-bold text-[15px] leading-tight"
+            style={{ color: card.textColor }}
+          >
+            {card.title}
+          </p>
+          <p
+            className="font-body text-[11px] mt-0.5"
+            style={{ color: card.textColor, opacity: 0.52 }}
+          >
+            {card.subtitle}
+          </p>
+          <p
+            className="font-body text-[12px] mt-1.5 leading-snug"
+            style={{ color: card.textColor, opacity: 0.72, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
+          >
+            {card.description}
+          </p>
+        </div>
+
+        {/* Tap arrow */}
+        <motion.div
+          className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-base"
+          style={{ background: `rgba(${card.glowRgb},0.22)` }}
+          whileHover={{ scale: 1.12 }}
+          whileTap={{ scale: 0.88 }}
+        >
+          <span style={{ color: card.textColor }}>→</span>
+        </motion.div>
+      </div>
+
+      {/* "Has photo" hint */}
+      {card.imageFilename && (
+        <div className="px-4 pb-3 flex items-center gap-1.5">
+          <div
+            className="w-1.5 h-1.5 rounded-full"
+            style={{ background: `rgba(${card.glowRgb},0.55)` }}
+          />
+          <p
+            className="text-[10px] font-body"
+            style={{ color: card.textColor, opacity: 0.45 }}
+          >
+            has a photo ✨
+          </p>
+        </div>
+      )}
+    </motion.div>
+  )
+}
+
+// ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function ScreenLittleThings({ onContinue, onSecretFound }: Props) {
+  const [openCard, setOpenCard] = useState<LittleThing | null>(null)
+
+  const handleOpen = (card: LittleThing) => {
+    setOpenCard(card)
+  }
+
   return (
     <motion.div
       className="relative w-full h-full flex flex-col overflow-hidden"
@@ -259,8 +253,8 @@ export default function ScreenLittleThings({ onContinue, onSecretFound }: Props)
         <motion.div
           key={i}
           className="absolute text-sm pointer-events-none"
-          style={{ left: `${7 + i * 20}%`, top: `${2 + (i % 3) * 4}%`, opacity: 0.3 }}
-          animate={{ y: [0, -10, 0], opacity: [0.18, 0.50, 0.18] }}
+          style={{ left: `${7 + i * 20}%`, top: `${2 + (i % 3) * 4}%` }}
+          animate={{ y: [0, -10, 0], opacity: [0.18, 0.48, 0.18] }}
           transition={{ duration: 4 + i * 0.7, repeat: Infinity, delay: i * 0.55 }}
         >
           {e}
@@ -270,7 +264,7 @@ export default function ScreenLittleThings({ onContinue, onSecretFound }: Props)
       {/* Header */}
       <motion.div
         className="flex-shrink-0 pt-12 pb-3 px-6 text-center"
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
       >
@@ -291,19 +285,16 @@ export default function ScreenLittleThings({ onContinue, onSecretFound }: Props)
         </p>
       </motion.div>
 
-      {/* Scrollable cards */}
+      {/* Card list */}
       <div className="flex-1 overflow-y-auto no-scrollbar px-5 pb-2">
-        <motion.div className="flex flex-col gap-4 pb-5" layout>
+        <div className="flex flex-col gap-3 pb-5">
           {littleThings.map((card, i) => (
-            <motion.div
+            <MemoryCard
               key={card.id}
-              layout
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.14 * i + 0.28, duration: 0.45, ease: 'easeOut' }}
-            >
-              <MemoryCard card={card} index={i} />
-            </motion.div>
+              card={card}
+              index={i}
+              onOpen={() => handleOpen(card)}
+            />
           ))}
 
           {/* Hidden moon secret */}
@@ -311,18 +302,18 @@ export default function ScreenLittleThings({ onContinue, onSecretFound }: Props)
             className="flex justify-center py-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
+            transition={{ delay: 1.1 }}
           >
             <motion.button
               type="button"
               onClick={() => onSecretFound(secrets.moon)}
-              animate={{ opacity: [0.12, 0.42, 0.12] }}
+              animate={{ opacity: [0.12, 0.40, 0.12] }}
               transition={{ duration: 7, repeat: Infinity }}
             >
               🌙
             </motion.button>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Continue */}
@@ -330,7 +321,7 @@ export default function ScreenLittleThings({ onContinue, onSecretFound }: Props)
         className="flex-shrink-0 px-6 py-5"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.0 }}
+        transition={{ delay: 0.9 }}
       >
         <button
           type="button"
@@ -347,6 +338,16 @@ export default function ScreenLittleThings({ onContinue, onSecretFound }: Props)
           <span className="relative z-10">Continue 🌸</span>
         </button>
       </motion.div>
+
+      {/* Bottom sheet portal */}
+      <AnimatePresence>
+        {openCard && (
+          <CardSheet
+            card={openCard}
+            onClose={() => setOpenCard(null)}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }

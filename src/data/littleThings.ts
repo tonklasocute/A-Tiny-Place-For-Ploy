@@ -25,7 +25,7 @@ export const littleThings: LittleThing[] = [
     description: 'Ploy enjoys Formula 1 and always roots for Leclerc. Race weekends hit differently.',
     hiddenMessage: 'Hopefully LC16 gets a podium today.',
     imageFilename: 'lc16.jpg',
-    objectPosition: '50% 10%',
+    objectPosition: '50% 65%',
     fadeColor: '#c8d0ff',
     gradient: 'linear-gradient(160deg, #c8d0ff 0%, #aab8ff 100%)',
     glowRgb: '80,100,230',
