@@ -116,7 +116,7 @@ export default function MusicPlayer() {
         drag
         dragConstraints={constraintsRef}
         dragMomentum={false}
-        className="fixed bottom-6 left-4 z-[100] cursor-grab active:cursor-grabbing touch-none"
+        className="fixed bottom-6 right-4 z-[100] cursor-grab active:cursor-grabbing touch-none"
         initial={{ opacity: 0, y: 12, scale: 0.9 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ delay: 0.6, type: 'spring', stiffness: 220, damping: 18 }}

@@ -17,7 +17,7 @@ function CardSheet({ card, onClose }: { card: LittleThing; onClose: () => void }
   return (
     // Backdrop
     <motion.div
-      className="fixed inset-0 z-50 flex items-end justify-center"
+      className="fixed inset-0 z-[110] flex items-end justify-center"
       style={{
         background: 'rgba(8,4,20,0.60)',
         backdropFilter: 'blur(12px)',
@@ -34,10 +34,11 @@ function CardSheet({ card, onClose }: { card: LittleThing; onClose: () => void }
     >
       {/* Sheet */}
       <motion.div
-        className="w-full rounded-3xl overflow-hidden"
+        className="w-full rounded-3xl overflow-y-auto"
         style={{
           background: card.gradient,
           maxWidth: '440px',
+          maxHeight: '88dvh',
           boxShadow: `0 -8px 60px rgba(${card.glowRgb},0.45), 0 24px 60px rgba(0,0,0,0.35)`,
         }}
         initial={{ y: '110%' }}
@@ -66,7 +67,7 @@ function CardSheet({ card, onClose }: { card: LittleThing; onClose: () => void }
             transition={{ delay: 0.08, type: 'spring', stiffness: 280, damping: 24 }}
           >
             {/* Fixed-height container — required for object-fit + object-position to crop correctly */}
-            <div style={{ height: '300px', overflow: 'hidden' }}>
+            <div style={{ height: '220px', overflow: 'hidden' }}>
               <img
                 src={`${base}${card.imageFilename}`}
                 alt={card.title}
@@ -128,20 +129,14 @@ function CardSheet({ card, onClose }: { card: LittleThing; onClose: () => void }
 
           {/* Secret note */}
           <motion.div
-            className="rounded-2xl px-4 py-4 mb-4"
+            className="rounded-2xl px-5 py-4 mb-4"
             style={{ background: card.noteAlpha }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.18, duration: 0.32 }}
           >
             <p
-              className="text-[10px] font-body font-bold tracking-widest uppercase mb-1.5"
-              style={{ color: card.textColor, opacity: 0.5 }}
-            >
-              secret ✨
-            </p>
-            <p
-              className="font-display text-[18px] italic leading-snug"
+              className="font-display text-[17px] italic leading-relaxed"
               style={{ color: card.hiddenColor }}
             >
               "{card.hiddenMessage}"
@@ -154,13 +149,13 @@ function CardSheet({ card, onClose }: { card: LittleThing; onClose: () => void }
             onClick={onClose}
             className="w-full py-3.5 rounded-2xl font-body font-semibold text-sm"
             style={{
-              background: `rgba(${card.glowRgb},0.18)`,
+              background: `rgba(${card.glowRgb},0.15)`,
               color: card.textColor,
-              border: `1.5px solid rgba(${card.glowRgb},0.30)`,
+              border: `1.5px solid rgba(${card.glowRgb},0.25)`,
             }}
             whileTap={{ scale: 0.97 }}
           >
-            close ✕
+            close
           </motion.button>
         </div>
       </motion.div>
@@ -233,21 +228,6 @@ function MemoryCard({
         </motion.div>
       </div>
 
-      {/* "Has photo" hint */}
-      {card.imageFilename && (
-        <div className="px-4 pb-3 flex items-center gap-1.5">
-          <div
-            className="w-1.5 h-1.5 rounded-full"
-            style={{ background: `rgba(${card.glowRgb},0.55)` }}
-          />
-          <p
-            className="text-[10px] font-body"
-            style={{ color: card.textColor, opacity: 0.45 }}
-          >
-            has a photo ✨
-          </p>
-        </div>
-      )}
     </motion.div>
   )
 }
