@@ -66,7 +66,7 @@ function CardSheet({ card, onClose }: { card: LittleThing; onClose: () => void }
             transition={{ delay: 0.08, type: 'spring', stiffness: 280, damping: 24 }}
           >
             {/* Fixed-height container — required for object-fit + object-position to crop correctly */}
-            <div style={{ height: '260px', overflow: 'hidden' }}>
+            <div style={{ height: '300px', overflow: 'hidden' }}>
               <img
                 src={`${base}${card.imageFilename}`}
                 alt={card.title}
@@ -86,7 +86,7 @@ function CardSheet({ card, onClose }: { card: LittleThing; onClose: () => void }
         {/* Content */}
         <div className="px-5 pt-4 pb-5">
           {/* Title */}
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-3">
             <span className="text-3xl select-none">{card.emoji}</span>
             <div className="flex-1">
               <p
@@ -103,6 +103,28 @@ function CardSheet({ card, onClose }: { card: LittleThing; onClose: () => void }
               </p>
             </div>
           </div>
+
+          {/* Story — full poetic text with line breaks */}
+          <motion.div
+            className="mb-4"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12, duration: 0.3 }}
+          >
+            {card.story.split('\n').map((line, i) =>
+              line === '' ? (
+                <div key={i} className="h-2" />
+              ) : (
+                <p
+                  key={i}
+                  className="font-body text-[13px] leading-relaxed"
+                  style={{ color: card.textColor, opacity: 0.82 }}
+                >
+                  {line}
+                </p>
+              )
+            )}
+          </motion.div>
 
           {/* Secret note */}
           <motion.div

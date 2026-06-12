@@ -3,14 +3,15 @@ export interface LittleThing {
   emoji: string
   title: string
   subtitle: string
-  description: string
+  description: string      // 2-line preview shown on compact card
+  story: string            // full poetic text shown in the pop-up sheet
   hiddenMessage: string
-  imageFilename?: string    // shown as card header photo (from /public/)
-  objectPosition?: string   // CSS object-position for photo crop
-  fadeColor: string         // hex – photo or header fades into this → body start color
-  gradient: string          // card body gradient
-  glowRgb: string           // "r,g,b" for rgba shadows
-  noteAlpha: string         // tinted bg for revealed note
+  imageFilename?: string
+  objectPosition?: string
+  fadeColor: string
+  gradient: string
+  glowRgb: string
+  noteAlpha: string
   textColor: string
   hiddenColor: string
   sparkleEmojis: string[]
@@ -20,10 +21,11 @@ export const littleThings: LittleThing[] = [
   {
     id: 'racing',
     emoji: '🏎️',
-    title: 'Sunday Race Energy',
+    title: 'Race Day Ploy',
     subtitle: 'Formula One · #LC16',
-    description: 'Ploy enjoys Formula 1 and always roots for Leclerc. Race weekends hit differently.',
-    hiddenMessage: 'Hopefully LC16 gets a podium today.',
+    description: 'On race weekends, she probably knows the F1 schedule better than her own plans.',
+    story: 'On race weekends, there\'s a good chance Ploy knows the F1 schedule better than her own plans.\n\nEverything seems normal before the lights go out.\n\nBut the moment the race starts, she becomes a full-time LC16 supporter.\n\nEvery overtake matters. Every pit stop matters. Every lap feels personal.',
+    hiddenMessage: 'Today, all I\'m asking for is a clean race and no drama. 🏁',
     imageFilename: 'lc16.jpg',
     objectPosition: '50% 65%',
     fadeColor: '#c8d0ff',
@@ -37,10 +39,11 @@ export const littleThings: LittleThing[] = [
   {
     id: 'cats',
     emoji: '🐱',
-    title: 'Cat Distribution System',
-    subtitle: 'Soft paws · loud purrs',
-    description: 'Cats seem to find her wherever she goes. Something about her energy, maybe.',
-    hiddenMessage: 'Every cat deserves a nap.',
+    title: 'Cat Magnet',
+    subtitle: 'They always find her first',
+    description: 'No one really knows whether Ploy loves cats — or cats simply love Ploy back.',
+    story: 'No one really knows whether Ploy loves cats...\n\nor cats simply love Ploy back.\n\nBut somehow, whenever there\'s a cat nearby, she\'s always the first one to spot it.\n\nAnd before long, there\'s usually a smile on her face.\n\nMaybe cats are just very good judges of character.',
+    hiddenMessage: 'Every cat that walks up to you made the right choice. 🐾',
     imageFilename: 'cat.jpg',
     objectPosition: 'center 30%',
     fadeColor: '#dbbeff',
@@ -54,10 +57,13 @@ export const littleThings: LittleThing[] = [
   {
     id: 'memory',
     emoji: '🧠',
-    title: 'Memory Loading...',
+    title: 'Loading...',
     subtitle: 'Please wait · 3%',
-    description: 'Adorably forgetful in the most endearing way. Why did she come into this room? Unknown.',
-    hiddenMessage: 'Achievement Unlocked: Forgot what I was doing.',
+    description: 'Walk into a room. Forget why. Walk back. Remember. Walk in again. Forget once more.',
+    story: 'Ploy has a very special talent.\n\nWalk into a room.\nForget why she went there.\nWalk back.\nRemember.\nWalk in again.\nForget once more.\nRepeat as necessary.\n\nSome days her memory takes a little longer to load.\n\nBut somehow, that\'s part of her charm.',
+    hiddenMessage: 'Too many tabs open. System still running. 💭',
+    imageFilename: 'forget.jpg',
+    objectPosition: 'center center',
     fadeColor: '#b0f0d8',
     gradient: 'linear-gradient(160deg, #b0f0d8 0%, #86e4c0 100%)',
     glowRgb: '30,160,120',
@@ -69,10 +75,13 @@ export const littleThings: LittleThing[] = [
   {
     id: 'kind',
     emoji: '🌷',
-    title: 'Too Kind For Her Own Good',
+    title: 'Softer Than She Thinks',
     subtitle: 'Considers everyone · always',
-    description: 'She will worry about how others are doing before she ever thinks about herself.',
-    hiddenMessage: 'You deserve kindness too.',
+    description: 'Ploy is the kind of person who worries about everyone else first.',
+    story: 'Ploy is the kind of person who worries about everyone else first.\n\nShe checks if people are okay.\nShe thinks about how others might feel.\nShe says sorry even when she doesn\'t need to.\n\nAnd sometimes she carries things quietly on her own.\n\nEvery now and then, she forgets that she deserves the same kindness she gives to everyone else.',
+    hiddenMessage: 'Maybe next time, choose yourself first. Just a little. 🌷',
+    imageFilename: 'ploy4.jpg',
+    objectPosition: 'center 48%',
     fadeColor: '#ffcce0',
     gradient: 'linear-gradient(160deg, #ffcce0 0%, #ffaece 100%)',
     glowRgb: '220,70,130',
@@ -84,10 +93,13 @@ export const littleThings: LittleThing[] = [
   {
     id: 'food',
     emoji: '🍜',
-    title: 'Certified Food Explorer',
+    title: 'Professional Food Enjoyer',
     subtitle: 'All cuisines welcome',
-    description: '"Let\'s try that place?" — her answer is always yes. Always.',
-    hiddenMessage: 'Mission: Find the next delicious thing.',
+    description: 'If someone asks "What should we eat?" — Ploy is probably the easiest person to ask.',
+    story: 'If someone asks,\n"What should we eat?"\n\nPloy is probably the easiest person to ask.\n\nBecause the answer is usually:\n"Anything is fine."\n\nNew places. Late-night snacks.\nStreet food. Desserts. Comfort food.\nTrying something she\'s never had before.\n\nFood isn\'t just food.\nIt\'s part of the adventure.',
+    hiddenMessage: 'Life gets a little better when there\'s something delicious involved. ✨',
+    imageFilename: 'food.jpg',
+    objectPosition: 'center center',
     fadeColor: '#ffd880',
     gradient: 'linear-gradient(160deg, #ffd880 0%, #ffca50 100%)',
     glowRgb: '200,140,20',
