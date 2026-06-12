@@ -4,17 +4,12 @@ export const letterMemories = [
   {
     id: 'm1',
     prompt: 'One thing I still remember...',
-    text: 'the way you always showed up for others, even on your hard days.',
+    text: 'how even when you\'re worried about your own things, you somehow still find room to care about everyone else. It\'s one of the reasons I think you\'re so special.',
   },
   {
     id: 'm2',
-    prompt: 'I laughed when...',
-    text: 'you got too excited over bubble tea and spilled it on yourself — twice.',
-  },
-  {
-    id: 'm3',
     prompt: 'I hope someday...',
-    text: 'you look back at this moment and smile, knowing it was the start of something wonderful.',
+    text: 'you look back at this moment and smile. Not because it was easy. But because it was the moment you were brave enough to choose yourself. And because it led you somewhere even better than you imagined.',
   },
 ]
 
