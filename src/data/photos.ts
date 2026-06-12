@@ -17,21 +17,19 @@ export const photos: Photo[] = [
   {
     id: 'p2',
     filename: 'ploy2.jpg',
-    caption: 'The day felt lighter.',
-    date: '2024',
+    caption: 'Glowing, even in the dark.',
     rotation: 2.5,
   },
   {
     id: 'p3',
     filename: 'ploy3.jpg',
-    caption: 'This deserves to be remembered.',
+    caption: 'You belong somewhere beautiful.',
     rotation: -1.5,
   },
   {
     id: 'p4',
     filename: 'ploy4.jpg',
-    caption: 'Still carrying this memory.',
-    date: '2025',
+    caption: 'Being real — that\'s the best version.',
     rotation: 3,
   },
 ]

@@ -52,7 +52,7 @@ function PolaroidCard({
           />
         </div>
         {/* Caption */}
-        <div className="pt-1 px-1">
+        <div className="pt-1 px-1" style={{ minHeight: '48px' }}>
           <p className="font-display text-xs leading-snug text-center" style={{ color: '#5a3d5c' }}>
             {photo.caption}
           </p>
@@ -182,7 +182,7 @@ export default function ScreenSnapshots({ onContinue, onSecretFound }: Props) {
 
       {/* Photo grid */}
       <div className="flex-1 overflow-y-auto no-scrollbar px-5 pb-4">
-        <div className="grid grid-cols-2 gap-6 pt-4 pb-8">
+        <div className="grid grid-cols-2 gap-4 pt-4 pb-8 items-start">
           {photos.map((photo, i) => (
             <PolaroidCard
               key={photo.id}
