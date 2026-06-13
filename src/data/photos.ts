@@ -17,7 +17,7 @@ export const photos: Photo[] = [
   {
     id: 'p2',
     filename: 'ploy2.jpg',
-    caption: 'Glowing, even in the dark.',
+    caption: 'Glowing, even in the darks.',
     rotation: 2.5,
   },
   {
